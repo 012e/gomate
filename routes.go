@@ -1,11 +1,22 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/012e/gomate/middlewares"
+	"github.com/012e/gomate/utils/json"
 	"github.com/gin-gonic/gin"
+
+	docs "github.com/012e/gomate/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func createRoutes(r *gin.Engine) {
+	docs.SwaggerInfo.BasePath = "/"
+	r.GET("/", defaultController.Hello)
+	r.GET("/todo/:id", defaultController.GetTodo)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	auth := r.Group("/auth")
 	{
 		auth.POST("/register", defaultController.Register)
@@ -16,7 +27,7 @@ func createRoutes(r *gin.Engine) {
 	private.Use(middlewares.CookieAuthenticator(defaultController))
 	// binder must be used before authorizator
 	private.Use(middlewares.BindDefaultControllerContexts(defaultController))
-	private.Use(middlewares.Authorizator(defaultController))
+	// private.Use(middlewares.Authorizator(defaultController))
 	private.GET("/hello", defaultController.Hello)
 	{
 		group := private.Group("/group")
@@ -37,7 +48,6 @@ func createRoutes(r *gin.Engine) {
 				groupRequired.GET("/leave", defaultController.LeaveGroup)
 				groupRequired.POST("/join/new", defaultController.CreateJoinCode)
 
-
 				// TODO: implement
 				// groupRequired.DELETE("/:code", defaultController.DeleteGroup)
 				// groupRequired.GET("/all", defaultController.CreateJoinCode)
@@ -53,4 +63,5 @@ func createRoutes(r *gin.Engine) {
 			// todo.PATCH("/:id", defaultController.GetTodo)
 		}
 	}
+	r.NoRoute(func(g *gin.Context) { g.JSON(http.StatusNotFound, json.Fail("route doesn't exist")) })
 }

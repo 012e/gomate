@@ -27,11 +27,13 @@ func init() {
 	db, err = gorm.Open(
 		postgres.New(postgres.Config{
 			DSN:                  dsn,
-			PreferSimpleProtocol: true,
-		}), &gorm.Config{SkipDefaultTransaction: true})
+			PreferSimpleProtocol: true}),
+		// sqlite.Open("test.db"),
+		&gorm.Config{SkipDefaultTransaction: true})
 	if err != nil {
 		panic(err)
 	}
+	logrus.Info("setup database")
 
 	db.AutoMigrate(
 		&models.User{},
@@ -52,8 +54,10 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	enforcer.LoadPolicy()
+	logrus.Info("setup casbin")
+
 	defaultController = controllers.Setup(db, enforcer)
+	logrus.Info("setup controller")
 }
 
 func main() {
