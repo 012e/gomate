@@ -1,19 +1,13 @@
 package models
 
-import (
-	"database/sql"
-
-	"gorm.io/gorm"
-)
-
 type User struct {
-	gorm.Model
-	ID           int64
-	Name         string
-	Email        string
-	Username     string
-	PasswordHash []byte
+	Base         
+	ID           int64  `json:"id,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Email        string `json:"email,omitempty"`
+	Username     string `json:"username,omitempty"`
+	PasswordHash []byte `json:"password_hash,omitempty"`
 
-	HaveGroup sql.NullBool `gorm:"default:false"`
-	GroupID   int64
+	HaveGroup bool  `gorm:"default:false" json:"have_group,omitempty"`
+	GroupID   int64 `json:"group_id,omitempty"`
 }

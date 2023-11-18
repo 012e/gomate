@@ -4,21 +4,20 @@ import "gorm.io/gorm"
 
 type Group struct {
 	gorm.Model
-	ID   int64
-	Name string
-	Description string
+	ID          int64  `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 // users of a group
 type GroupUser struct {
-	gorm.Model
-	ID int64
+	Base
 
 	Group   Group
-	GroupID int64
+	GroupID int64 `gorm:"not null"`
 
 	User   User
-	UserID int64
+	UserID int64 `gorm:"not null"`
 }
 
 // link to join groups
