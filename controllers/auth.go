@@ -8,6 +8,7 @@ import (
 	"github.com/012e/gomate/controllers/permmanager"
 	"github.com/012e/gomate/models"
 	"github.com/012e/gomate/utils/json"
+	"github.com/012e/gomate/utils/resp"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -71,10 +72,18 @@ func addDefaultPerms(p *permmanager.PermManager, username string) error {
 	return nil
 }
 
+// @Summary Register user
+// @Tags Authentication
+// @Schemes
+// @Accept mpfd
+// @Produce json
+// @Success 200 {object} resp.BaseOk
+// @Router /auth/register [post]
+// @Param	registerForm formData registerForm true "login form"
 func (c DefaultController) Register(g *gin.Context) {
 	var form registerForm
 	if err := g.ShouldBind(&form); err != nil {
-		g.JSON(http.StatusBadRequest, json.Fail(err.Error()))
+		g.JSON(http.StatusBadRequest, resp.Fail(err.Error()))
 		return
 	}
 
@@ -83,26 +92,26 @@ func (c DefaultController) Register(g *gin.Context) {
 	if exists {
 		g.JSON(
 			http.StatusConflict,
-			json.Fail("user already exists"),
+			resp.Fail("user already exists"),
 		)
 		return
 	}
 	logrus.Debug("checked existence of user")
 
 	if ok, why := validUsername(form.Username); !ok {
-		g.JSON(http.StatusBadRequest, json.Fail(why))
+		g.JSON(http.StatusBadRequest, resp.Fail(why))
 		return
 	}
 	logrus.Debug("checked username")
 
 	hashed, err := bcrypt.GenerateFromPassword(
 		[]byte(form.Password),
-		8,
+		bcrypt.DefaultCost,
 	)
 	if err != nil {
 		g.JSON(
 			http.StatusInternalServerError,
-			json.FailUnknown(),
+			resp.FailUnknow(),
 		)
 		return
 	}
@@ -110,7 +119,7 @@ func (c DefaultController) Register(g *gin.Context) {
 	err = c.DB.Model(&models.User{}).
 		Create(map[string]any{"username": form.Username, "password_hash": hashed, "name": form.Name}).Error
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, json.Fail("something went wrong while creating new user"))
+		g.JSON(http.StatusInternalServerError, resp.Fail("something went wrong while creating new user"))
 		return
 	}
 	g.JSON(http.StatusOK, json.Ok("created new user"))
@@ -118,7 +127,7 @@ func (c DefaultController) Register(g *gin.Context) {
 
 	err = addDefaultPerms(c.PermManager, form.Username)
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, json.Fail("something went wrong while adding permissions for user"))
+		g.JSON(http.StatusInternalServerError, resp.Fail("something went wrong while adding permissions for user"))
 		return
 	}
 	logrus.Debug("added default permissions for user")
@@ -129,10 +138,18 @@ type loginForm struct {
 	Password string `form:"password" binding:"required,ascii"`
 }
 
+// @Summary Login user
+// @Tags Authentication
+// @Schemes
+// @Accept mpfd
+// @Produce json
+// @Success 200 {object} resp.BaseOk
+// @Router /auth/login [post]
+// @Param	loginForm formData loginForm true "login form"
 func (c DefaultController) Login(g *gin.Context) {
 	var form loginForm
 	if err := g.ShouldBind(&form); err != nil {
-		g.JSON(http.StatusBadRequest, json.Fail(err.Error()))
+		g.JSON(http.StatusBadRequest, resp.Fail(err.Error()))
 		return
 	}
 	strings.TrimSpace(form.Username)
@@ -144,12 +161,12 @@ func (c DefaultController) Login(g *gin.Context) {
 	exists, err := userExists(c.DB, form.Username)
 	if err != nil {
 		logrus.Debugf("failed with %s", err)
-		g.JSON(http.StatusInternalServerError, json.FailUnknown())
+		g.JSON(http.StatusInternalServerError, resp.FailUnknow())
 		return
 	}
 	if !exists {
 		logrus.Debugf("failed with %s", err)
-		g.JSON(http.StatusConflict, json.Fail(wrongInfo))
+		g.JSON(http.StatusConflict, resp.Fail(wrongInfo))
 		return
 	}
 	logrus.Debug("checked user existence")
@@ -157,12 +174,12 @@ func (c DefaultController) Login(g *gin.Context) {
 	var user models.User
 	err = c.DB.First(&user, "username = $1", form.Username).Error
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, json.FailUnknown())
+		g.JSON(http.StatusInternalServerError, resp.FailUnknow())
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(form.Password)); err != nil {
-		g.AbortWithStatusJSON(http.StatusInternalServerError, json.Fail(wrongInfo))
+		g.AbortWithStatusJSON(http.StatusInternalServerError, resp.Fail(wrongInfo))
 		return
 	}
 	logrus.Debug("finished hashing password")
@@ -176,12 +193,12 @@ func (c DefaultController) Login(g *gin.Context) {
 		"username": user.Username,
 	}).Error
 	if err != nil {
-		g.AbortWithStatusJSON(http.StatusInternalServerError, json.FailUnknown())
+		g.AbortWithStatusJSON(http.StatusInternalServerError, resp.FailUnknow())
 		return
 	}
 	logrus.Debug("generated new session token")
 
 	// no need to remove old token
-	g.SetCookie("sessionToken", token, 333, "/", "localhost:8080", true, true)
-	g.JSON(http.StatusOK, json.Ok("logged you in"))
+	g.SetCookie("sessionToken", token, 99999, "/", "localhost:8080", true, true)
+	g.JSON(http.StatusOK, resp.Ok("logged you in"))
 }
