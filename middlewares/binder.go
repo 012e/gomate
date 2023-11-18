@@ -23,7 +23,9 @@ func BindDefaultControllerContexts(c *controllers.DefaultController) gin.Handler
 		// save user infos to the controller
 		userContext := &c.PermManager.Context
 		userContext.Username = username
-		if user.HaveGroup.Valid && user.HaveGroup.Bool {
+		userContext.UserID = user.ID
+		userContext.UserIDStr = strconv.FormatInt(user.ID, 10)
+		if user.HaveGroup {
 			userContext.GroupID = user.GroupID
 			userContext.GroupIDStr = strconv.FormatInt(user.GroupID, 10)
 			userContext.UserHaveGroup = true
