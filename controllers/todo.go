@@ -63,7 +63,7 @@ func (c *DefaultController) GetTodo(g *gin.Context) {
 			g.JSON(http.StatusUnprocessableEntity, resp.Failf("todo id=%d", id))
 			return
 		} else {
-			g.JSON(http.StatusInternalServerError, resp.FailUnknow())
+			g.JSON(http.StatusInternalServerError, resp.FailUnknown())
 			return
 		}
 	}

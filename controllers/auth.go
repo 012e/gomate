@@ -7,7 +7,6 @@ import (
 
 	"github.com/012e/gomate/controllers/permmanager"
 	"github.com/012e/gomate/models"
-	"github.com/012e/gomate/utils/json"
 	"github.com/012e/gomate/utils/resp"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -111,7 +110,7 @@ func (c DefaultController) Register(g *gin.Context) {
 	if err != nil {
 		g.JSON(
 			http.StatusInternalServerError,
-			resp.FailUnknow(),
+			resp.FailUnknown(),
 		)
 		return
 	}
@@ -122,7 +121,7 @@ func (c DefaultController) Register(g *gin.Context) {
 		g.JSON(http.StatusInternalServerError, resp.Fail("something went wrong while creating new user"))
 		return
 	}
-	g.JSON(http.StatusOK, json.Ok("created new user"))
+	g.JSON(http.StatusOK, resp.Ok("created new user"))
 	logrus.Debug("created new user")
 
 	err = addDefaultPerms(c.PermManager, form.Username)
@@ -161,7 +160,7 @@ func (c DefaultController) Login(g *gin.Context) {
 	exists, err := userExists(c.DB, form.Username)
 	if err != nil {
 		logrus.Debugf("failed with %s", err)
-		g.JSON(http.StatusInternalServerError, resp.FailUnknow())
+		g.JSON(http.StatusInternalServerError, resp.FailUnknown())
 		return
 	}
 	if !exists {
@@ -174,7 +173,7 @@ func (c DefaultController) Login(g *gin.Context) {
 	var user models.User
 	err = c.DB.First(&user, "username = $1", form.Username).Error
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, resp.FailUnknow())
+		g.JSON(http.StatusInternalServerError, resp.FailUnknown())
 		return
 	}
 
@@ -193,7 +192,7 @@ func (c DefaultController) Login(g *gin.Context) {
 		"username": user.Username,
 	}).Error
 	if err != nil {
-		g.AbortWithStatusJSON(http.StatusInternalServerError, resp.FailUnknow())
+		g.AbortWithStatusJSON(http.StatusInternalServerError, resp.FailUnknown())
 		return
 	}
 	logrus.Debug("generated new session token")

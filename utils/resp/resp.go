@@ -20,7 +20,7 @@ func Failf(msg string, args ...any) BaseFail {
 	return Fail(fmt.Sprintf(msg, args...))
 }
 
-func FailUnknow() BaseFail {
+func FailUnknown() BaseFail {
 	return Fail("something went wrong")
 }
 

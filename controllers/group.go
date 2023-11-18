@@ -28,7 +28,7 @@ func (c *DefaultController) LeaveGroup(g *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, resp.FailUnknow())
+		g.JSON(http.StatusInternalServerError, resp.FailUnknown())
 		return
 	}
 	g.JSON(http.StatusAccepted, resp.Ok("left your group"))
@@ -97,7 +97,7 @@ func (c *DefaultController) CreateGroup(g *gin.Context) {
 
 	if err != nil {
 		logrus.Debugf("failed to create group")
-		g.JSON(http.StatusInternalServerError, resp.FailUnknow())
+		g.JSON(http.StatusInternalServerError, resp.FailUnknown())
 		return
 	}
 	g.JSON(http.StatusAccepted, resp.Ok("created new group"))

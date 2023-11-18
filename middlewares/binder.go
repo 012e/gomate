@@ -6,7 +6,7 @@ import (
 
 	"github.com/012e/gomate/controllers"
 	"github.com/012e/gomate/models"
-	"github.com/012e/gomate/utils/json"
+	"github.com/012e/gomate/utils/resp"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,7 @@ func BindDefaultControllerContexts(c *controllers.DefaultController) gin.Handler
 		var user models.User
 		err := c.DB.First(&user, "username = $1", username).Error
 		if err != nil {
-			g.AbortWithStatusJSON(http.StatusInternalServerError, json.FailUnknown())
+			g.AbortWithStatusJSON(http.StatusInternalServerError, resp.FailUnknown())
 			return
 		}
 		// save user infos to the controller
