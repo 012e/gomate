@@ -1,9 +1,7 @@
 package models
 
-import "gorm.io/gorm"
-
 type Group struct {
-	gorm.Model
+	Base
 	ID          int64  `json:"id,omitempty"`
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
@@ -22,7 +20,7 @@ type GroupUser struct {
 
 // link to join groups
 type GroupJoinCode struct {
-	gorm.Model
+	Base
 	ID int64
 
 	Group   Group

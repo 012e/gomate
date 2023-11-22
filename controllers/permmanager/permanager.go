@@ -9,6 +9,8 @@ import (
 
 type Context struct {
 	Username      string
+	UserID        int64
+	UserIDStr     string
 	GroupID       int64
 	GroupIDStr    string
 	Route         string
@@ -67,6 +69,14 @@ func (p *PermManager) AddPoliciesForGroup(route string, newActions ...string) er
 	return nil
 }
 
+func (p *PermManager) UserDerivePolicesFromGroup(groupID string) error {
+	_, err := p.AddNamedGroupingPolicy("g", p.Username, groupID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // add actions for user at the current route.
 func (p *PermManager) AddPoliciesForGroupHere(newActions ...string) error {
 	if len(newActions) == 0 {
@@ -78,4 +88,3 @@ func (p *PermManager) AddPoliciesForGroupHere(newActions ...string) error {
 	}
 	return nil
 }
-

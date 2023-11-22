@@ -71,14 +71,6 @@ func addDefaultPerms(p *permmanager.PermManager, username string) error {
 	return nil
 }
 
-// @Summary Register user
-// @Tags Authentication
-// @Schemes
-// @Accept mpfd
-// @Produce json
-// @Success 200 {object} resp.BaseOk
-// @Router /auth/register [post]
-// @Param	registerForm formData registerForm true "login form"
 func (c DefaultController) Register(g *gin.Context) {
 	var form registerForm
 	if err := g.ShouldBind(&form); err != nil {
@@ -137,14 +129,6 @@ type loginForm struct {
 	Password string `form:"password" binding:"required,ascii"`
 }
 
-// @Summary Login user
-// @Tags Authentication
-// @Schemes
-// @Accept mpfd
-// @Produce json
-// @Success 200 {object} resp.BaseOk
-// @Router /auth/login [post]
-// @Param	loginForm formData loginForm true "login form"
 func (c DefaultController) Login(g *gin.Context) {
 	var form loginForm
 	if err := g.ShouldBind(&form); err != nil {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/012e/gomate/middlewares"
-	"github.com/012e/gomate/utils/json"
+	"github.com/012e/gomate/utils/resp"
 	"github.com/gin-gonic/gin"
 
 	docs "github.com/012e/gomate/docs"
@@ -48,7 +48,7 @@ func createRoutes(r *gin.Engine) {
 				groupRequired.GET("/leave", defaultController.LeaveGroup)
 				groupRequired.POST("/join/new", defaultController.CreateJoinCode)
 
-				// TODO: implement
+				// TODO
 				// groupRequired.DELETE("/:code", defaultController.DeleteGroup)
 				// groupRequired.GET("/all", defaultController.CreateJoinCode)
 			}
@@ -63,5 +63,5 @@ func createRoutes(r *gin.Engine) {
 			// todo.PATCH("/:id", defaultController.GetTodo)
 		}
 	}
-	r.NoRoute(func(g *gin.Context) { g.JSON(http.StatusNotFound, json.Fail("route doesn't exist")) })
+	r.NoRoute(func(g *gin.Context) { g.JSON(http.StatusNotFound, resp.Fail("route doesn't exist")) })
 }
